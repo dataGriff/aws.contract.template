@@ -43,6 +43,15 @@ describe("createClient", () => {
     expect(headers.get("x-api-key")).toBe("k3y");
   });
 
+  it("treats every non-2xx as an error, not only 4xx/5xx", async () => {
+    stubFetch(300, {});
+    const { client } = createClient({ baseURL: "https://api.example.com/v1", token: "t" });
+    const err = await listTodos({}, { client }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(300);
+    expect((err as ApiError).message).toBe("HTTP 300");
+  });
+
   it("throws a typed ApiError carrying the problem body and request id on non-2xx", async () => {
     stubFetch(404, problem, { "x-request-id": "req-1" });
     const { client } = createClient({ baseURL: "https://api.example.com/v1", token: "t" });

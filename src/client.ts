@@ -64,7 +64,7 @@ export function createClient(options: ClientOptions): { client: Client } {
         ...(config.headers ?? {}),
       },
     });
-    if (response.status >= 400) {
+    if (response.status < 200 || response.status >= 300) {
       const body: unknown = response.data;
       throw new ApiError(
         response.status,

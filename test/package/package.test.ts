@@ -62,12 +62,21 @@ describe("published package", () => {
     expect(cjs).toBe("function function");
   });
 
-  it("serves each subpath export", () => {
-    const out = node(
+  it("serves each subpath export (ESM and CJS)", () => {
+    const esm = node(
       `const z = await import("${pkgName}/zod"); const c = await import("${pkgName}/client"); await import("${pkgName}/types"); console.log(typeof z.todoSchema.parse, typeof c.createClient)`,
       scratch,
     );
-    expect(out).toBe("function function");
+    expect(esm).toBe("function function");
+    const cjs = execFileSync(
+      process.execPath,
+      [
+        "-e",
+        `const z = require("${pkgName}/zod"); const c = require("${pkgName}/client"); require("${pkgName}/types"); console.log(typeof z.todoSchema.parse, typeof c.createClient, require.resolve("${pkgName}/types").endsWith(".cjs"))`,
+      ],
+      { cwd: scratch, encoding: "utf8" },
+    ).trim();
+    expect(cjs).toBe("function function true");
   });
 
   it("ships the spec and the .http collection at resolvable paths", () => {

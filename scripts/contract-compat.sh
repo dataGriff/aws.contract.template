@@ -7,8 +7,9 @@
 #
 #   CONTRACT_BASE_REF=origin/release/1.x task contract:compat   # override the base
 #   CONTRACT_ALLOW_BREAKING=true task contract:compat            # accept a deliberate
-#     breaking change: the PR must carry a `feat!:` / BREAKING CHANGE commit so
-#     semantic-release publishes a new MAJOR (see docs/authoring).
+#     breaking change — honoured only if a commit since the base carries the
+#     `feat!:` / `BREAKING CHANGE:` marker, so semantic-release publishes a new
+#     MAJOR (see docs/authoring).
 set -euo pipefail
 
 CONTRACT="api/openapi.yaml"
@@ -43,7 +44,16 @@ echo "contract:compat: ${BASE_REF}:${CONTRACT} -> ${CONTRACT}"
 # ERR = breaking for existing clients (removed/renamed fields or operations,
 # tightened request constraints, ...). WARN-level changes are reported but allowed.
 if [[ "${CONTRACT_ALLOW_BREAKING:-}" == "true" ]]; then
-  echo "contract:compat: CONTRACT_ALLOW_BREAKING=true — reporting breaking changes without failing"
+  # The override is only honoured when the commits being merged carry the
+  # conventional-commit breaking marker, so semantic-release will cut a MAJOR.
+  # Otherwise a breaking contract could ship under a patch/minor version.
+  range="${BASE_REF}..HEAD"
+  if ! git log --format=%B "$range" | grep -Eq '^[a-z]+(\([^)]*\))?!:|^BREAKING[ -]CHANGE:'; then
+    echo "contract:compat: CONTRACT_ALLOW_BREAKING=true but no commit in ${range} is marked breaking" >&2
+    echo "  Add a 'feat!: ...' commit (or a 'BREAKING CHANGE:' footer) so the release is a new major." >&2
+    exit 1
+  fi
+  echo "contract:compat: CONTRACT_ALLOW_BREAKING=true and a breaking commit is present — reporting without failing"
   oasdiff breaking "$base_file" "$CONTRACT" --format "$format" || true
   exit 0
 fi
