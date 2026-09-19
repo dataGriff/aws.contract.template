@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/dataGriff/aws.contract.template/compare/v1.0.0...v1.0.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **release:** enable GitHub Pages from the docs job ([5a969d9](https://github.com/dataGriff/aws.contract.template/commit/5a969d931555291405ea0a54a3f5e140f88a887a))
+
 # 1.0.0 (2026-09-19)
 
 

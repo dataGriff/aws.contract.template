@@ -1,6 +1,6 @@
 {
   "name": "@datagriff/todo-api-contract",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The Todo API contract: OpenAPI spec, generated types, zod schemas, a typed fetch client and a ready-to-run .http collection",
   "type": "module",
   "license": "MIT",
