@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+*.tsbuildinfo
+coverage/
+
+# Packed tarballs (task test:package builds one into a temp dir; never commit one)
+*.tgz
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+# Tokens for the .http collection; never commit
+collections/http-client.private.env.json
+
+# Artifacts
+sbom.cdx.json
+test-results/
+
+# OS / editor
+.DS_Store
+.idea/
+*.log

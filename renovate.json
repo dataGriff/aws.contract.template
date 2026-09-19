@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "group:allNonMajor",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "7 days",
+  "packageRules": [
+    {
+      "description": "Auto-merge dev tooling. The only runtime dependency (zod) is reviewed by a human because it ships to every consumer.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "minimumReleaseAge": "7 days",
+      "automerge": true
+    },
+    {
+      "matchFileNames": [".mise.toml"],
+      "groupName": "mise tools"
+    }
+  ],
+  "lockFileMaintenance": { "enabled": true }
+}
