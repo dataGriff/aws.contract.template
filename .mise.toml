@@ -17,7 +17,3 @@ gitleaks = "8.30.1"
 lefthook = "2.1.14"
 "pipx:semgrep" = "1.177.0"
 
-[env]
-# Non-secret defaults only. NODE_AUTH_TOKEN is read by .npmrc for the registry;
-# an empty value is fine until a published version is installed.
-NODE_AUTH_TOKEN = ""
