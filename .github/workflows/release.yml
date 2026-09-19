@@ -64,7 +64,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build API reference
         run: task docs:api
+      # Enables Pages (source: GitHub Actions) on first use so a fresh clone of
+      # the template publishes its reference without a manual settings step.
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with: { path: docs/api-reference }
       - id: deploy
