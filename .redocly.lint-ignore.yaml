@@ -1,0 +1,10 @@
+# Targeted lint exceptions (rule -> exact pointers). Every entry carries its reason;
+# never add one to silence a real finding.
+api/openapi.yaml:
+  # access_token_claims documents the token, not a body: nothing references it by design.
+  no-unused-components:
+    - "#/components/schemas/access_token_claims"
+  # JWT claim names are dictated by Cognito (namespace:name); they cannot be snake_case.
+  rule/schema-properties-snake-case:
+    - "#/components/schemas/access_token_claims/properties/custom:tenant_id"
+    - "#/components/schemas/access_token_claims/properties/cognito:groups"

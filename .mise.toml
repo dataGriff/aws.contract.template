@@ -1,0 +1,19 @@
+# Single source of truth for tool versions.
+# Local dev, git hooks, and GitHub Actions all run `mise install` then invoke
+# Taskfile targets — guaranteeing identical tooling everywhere.
+[tools]
+# Redocly, Prism and httpyac are devDependencies (pnpm exec ...) so Renovate
+# manages them with the rest of the JS toolchain.
+# Everything is pinned exactly for reproducibility (local == hooks == CI). Bumped via Renovate.
+node = "22.12.0" # >= 22.12: require(esm) unflagged — Prism 5 loads the ESM-only @faker-js/faker
+pnpm = "9.12.3" # keep in sync with package.json "packageManager"
+# python stays at minor precision: mise verifies GitHub artifact attestations for
+# its prebuilt python and only recent patch releases carry them.
+python = "3.12"
+task = "3.40.1"
+trivy = "0.74.0"
+gitleaks = "8.30.1"
+"ubi:oasdiff/oasdiff" = "1.32.1" # contract backward-compatibility gate (task contract:compat)
+lefthook = "2.1.14"
+"pipx:semgrep" = "1.177.0"
+
