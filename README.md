@@ -1,0 +1,1 @@
+# aws.contract.template
