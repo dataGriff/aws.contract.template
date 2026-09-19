@@ -18,7 +18,9 @@ rules:
   operation-4xx-response: off
 
   # --- Naming standard: lower_snake_case for the data contract -------------
-  # Schema property names must be snake_case.
+  # Schema property names must be snake_case. The only exceptions are the JWT
+  # claim names Cognito itself dictates in access_token_claims (custom:tenant_id,
+  # cognito:groups), listed with their reason in .redocly.lint-ignore.yaml.
   rule/schema-properties-snake-case:
     subject:
       type: SchemaProperties

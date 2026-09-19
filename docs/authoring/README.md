@@ -17,6 +17,12 @@ committed (drift-gated by `task gen:check`).
 - **Every status a provider may return must be declared**; the provider's contract layer fails on
   undeclared statuses.
 - The `servers` entries are documentation placeholders (`no-server-example.com` is off).
+- **Token claims are part of the contract.** `access_token_claims` documents what a usable
+  `cognito_jwt` carries (`sub`, `custom:tenant_id` mandatory; `roles` optional). It is the pin
+  between the platform's pre-token trigger (which issues them) and the API (which requires them):
+  change it only together with both, and treat it as breaking. Its claim names are the one
+  allowed exception to `lower_snake_case` (Cognito dictates them; see `redocly.yaml`), and it is
+  deliberately unreferenced (`.redocly.lint-ignore.yaml`).
 
 ## Workflow
 

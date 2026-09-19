@@ -30,7 +30,7 @@ export const getTodo400Schema = z.lazy(() => problemSchema).describe("RFC 7807 p
 export type GetTodo400Schema = GetTodo400
 
 /**
- * @description Missing or invalid credentials
+ * @description Missing or invalid credentials — no bearer token, a token the authorizer rejects\n(signature, issuer, expiry), or a valid token lacking the claims the API requires\n(see `access_token_claims`).\n
  */
 export const getTodo401Schema = z.lazy(() => problemSchema).describe("RFC 7807 problem detail") as unknown as ToZod<GetTodo401>
 

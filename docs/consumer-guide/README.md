@@ -33,8 +33,11 @@ x-api-key: <your_api_key>
 
 Get a token from the Cognito hosted UI (Authorization Code + PKCE) for user-facing apps, or via
 `USER_PASSWORD_AUTH` against the platform's **test** app client (dev/staging only) for scripts/CI.
-The token carries `custom:tenant_id` and `roles` claims; the API scopes every response to your
-tenant + user.
+The token must carry the claims documented by the contract's `access_token_claims` schema:
+`sub` and `custom:tenant_id` (mandatory — a valid token without them gets a 401) and optionally
+`roles` (a JSON-encoded array of group names; `admin` unlocks cross-user operations). The
+platform's pre-token trigger adds them; you never supply them. The API scopes every response to
+your tenant + user. `accessTokenClaimsSchema` from `./zod` validates a decoded token.
 
 ## 3. Call it with the typed client
 

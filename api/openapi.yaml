@@ -176,7 +176,16 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A Cognito-issued JWT access token.
+      description: |
+        A JWT **access token** issued by the platform's Cognito user pool (hosted UI with
+        Authorization Code + PKCE for user-facing apps; `USER_PASSWORD_AUTH` against the
+        dev/staging test client for scripts). The API Gateway authorizer verifies signature,
+        issuer and expiry; the API then requires the claims described by
+        `access_token_claims`: `sub` and `custom:tenant_id` are mandatory (a token without
+        them is rejected with 401 even though it is valid), `roles` / `cognito:groups` are
+        optional and drive authorization (the `admin` role unlocks cross-user operations).
+        The custom claims are added by the platform's pre-token-generation trigger from the
+        user's `custom:tenant_id` attribute and group memberships — clients never supply them.
     api_key:
       type: apiKey
       in: header
@@ -250,6 +259,38 @@ components:
         type: string
 
   schemas:
+    access_token_claims:
+      type: object
+      description: |
+        The claims of a `cognito_jwt` access token the API relies on. Not a request or
+        response body: it documents (and, through the generated zod schema, lets the provider
+        and consumers validate) what a usable token carries. The platform's pre-token trigger
+        adds the custom claims; standard Cognito claims (`iss`, `exp`, `token_use`, ...) are
+        verified by the gateway and omitted here.
+      required: [sub, "custom:tenant_id"]
+      properties:
+        sub:
+          type: string
+          description: The user's stable Cognito identifier; scopes every resource to its owner.
+          example: 6b2f7c3e-1a0f-4f1c-9a4c-2d1c0e8b7a55
+        "custom:tenant_id":
+          type: string
+          minLength: 1
+          maxLength: 256
+          description: The user's tenant; every query is scoped to it. Sourced from the user's `custom:tenant_id` attribute.
+          example: acme
+        roles:
+          type: string
+          description: |
+            The user's Cognito group names as a JSON-encoded array of strings (encoded so names
+            with separators survive the authorizer's flattening). `admin` grants cross-user
+            operations. Absent when the user is in no group.
+          example: '["admin"]'
+        "cognito:groups":
+          type: array
+          items:
+            type: string
+          description: The raw Cognito group claim, when the pool includes it; equivalent to `roles`.
     health_status:
       type: object
       required: [status]
@@ -390,7 +431,10 @@ components:
         application/problem+json:
           schema: { $ref: "#/components/schemas/problem" }
     unauthorized:
-      description: Missing or invalid credentials
+      description: |
+        Missing or invalid credentials — no bearer token, a token the authorizer rejects
+        (signature, issuer, expiry), or a valid token lacking the claims the API requires
+        (see `access_token_claims`).
       content:
         application/problem+json:
           schema: { $ref: "#/components/schemas/problem" }

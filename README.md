@@ -25,14 +25,14 @@ The bundled example is a multi-tenant **Todo API**. Re-skin it with the **author
 npm install @datagriff/todo-api-contract
 ```
 
-| Import                                       | Gives you                                                 |
-| -------------------------------------------- | --------------------------------------------------------- |
-| `@datagriff/todo-api-contract`               | everything below                                          |
-| `@datagriff/todo-api-contract/types`         | `Todo`, `TodoCreate`, `Problem`, … (type-only)            |
-| `@datagriff/todo-api-contract/zod`           | `todoSchema`, `problemSchema`, … (runtime validation)     |
-| `@datagriff/todo-api-contract/client`        | `createClient`, `ApiError`, `listTodos`, `createTodo`, …  |
-| `@datagriff/todo-api-contract/openapi.yaml`  | the spec file (`require.resolve` it for any OpenAPI tool) |
-| `@datagriff/todo-api-contract/collections/*` | `todos.http`, `health.http`, `http-client.env.json`       |
+| Import                                       | Gives you                                                   |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| `@datagriff/todo-api-contract`               | everything below                                            |
+| `@datagriff/todo-api-contract/types`         | `Todo`, `TodoCreate`, `Problem`, … (type-only)              |
+| `@datagriff/todo-api-contract/zod`           | `todoSchema`, `problemSchema`, `accessTokenClaimsSchema`, … |
+| `@datagriff/todo-api-contract/client`        | `createClient`, `ApiError`, `listTodos`, `createTodo`, …    |
+| `@datagriff/todo-api-contract/openapi.yaml`  | the spec file (`require.resolve` it for any OpenAPI tool)   |
+| `@datagriff/todo-api-contract/collections/*` | `todos.http`, `health.http`, `http-client.env.json`         |
 
 ```ts
 import { ApiError, createClient, createTodo, getTodo } from "@datagriff/todo-api-contract/client";

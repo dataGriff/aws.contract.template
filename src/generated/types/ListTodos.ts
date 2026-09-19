@@ -40,7 +40,7 @@ export type ListTodos200 = TodoPage;
 export type ListTodos400 = Problem;
 
 /**
- * @description Missing or invalid credentials
+ * @description Missing or invalid credentials — no bearer token, a token the authorizer rejects\n(signature, issuer, expiry), or a valid token lacking the claims the API requires\n(see `access_token_claims`).\n
 */
 export type ListTodos401 = Problem;
 
