@@ -183,6 +183,20 @@ tasks:
     desc: "semantic-release: version (also written into the contract's info.version), changelog, tag, GitHub release, npm publish to GitHub Packages"
     cmds:
       - pnpm exec semantic-release -e ./.releaserc.json
+  release:prepare:
+    desc: "Everything that must happen before the tarball is packed — run by semantic-release's prepare step (.releaserc.json), not by hand"
+    preconditions:
+      - sh: test -n "{{.VERSION}}"
+        msg: "Pass VERSION=<x.y.z>"
+    cmds:
+      - task: version:set
+        vars: { VERSION: "{{.VERSION}}" }
+      - task: gen
+      # dist/ is gitignored, so the release checkout has none: without this the
+      # published tarball satisfies its `files` allowlist minus every entry
+      # point (see docs/operations). test:package builds, packs and installs the
+      # tarball, so an incomplete one fails HERE rather than in a consumer.
+      - task: test:package
 
   hooks:install:
     desc: Install the git hooks (also runs automatically on `pnpm install`)
