@@ -7,7 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "task version:set VERSION=${nextRelease.version} && task gen"
+        "prepareCmd": "task release:prepare VERSION=${nextRelease.version}"
       }
     ],
     ["@semantic-release/npm", { "npmPublish": true }],

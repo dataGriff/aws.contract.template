@@ -3,11 +3,18 @@
 ## Publishing
 
 Every push to `main` runs `release.yml`: semantic-release computes the next version from the
-conventional commits since the last tag, writes it into `api/openapi.yaml` (`info.version`) and
-`package.json`, regenerates the committed artifacts, **publishes to GitHub Packages**
+conventional commits since the last tag, runs `task release:prepare` (stamps the version into
+`api/openapi.yaml` (`info.version`) and `package.json`, regenerates the committed artifacts, builds
+`dist/` and proves the packed tarball installs), **publishes to GitHub Packages**
 (`https://npm.pkg.github.com`, scope `@datagriff`), commits `CHANGELOG.md` + the regenerated files,
 tags `vX.Y.Z` and creates the GitHub release. The `docs` job then publishes `docs/api-reference` to
 GitHub Pages. No secrets are needed beyond `GITHUB_TOKEN` (`packages: write`).
+
+`dist/` is gitignored and the release runs on a fresh checkout, so **the build must happen inside
+the prepare step** — nothing else puts the package's entry points in the tarball. `task
+release:prepare` ends with `task test:package`, which packs the tarball and installs it into a
+scratch project, so a tarball missing an export fails the release instead of reaching consumers
+(1.0.1 shipped without `dist/` because prepare only stamped and generated).
 
 If `main` is branch-protected, allow the workflow token to push the release commit or remove
 `@semantic-release/git` from `.releaserc.json`.
