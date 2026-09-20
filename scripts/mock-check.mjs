@@ -6,16 +6,15 @@
 // the contract declares for that operation. Catches a collection generator
 // bug, an example that does not satisfy its own schema, and a spec Prism
 // cannot serve — before a consumer does.
-import { spawn, execFile as execFileCb } from "node:child_process";
-import { promisify } from "node:util";
+import { spawn } from "node:child_process";
 import { createServer } from "node:net";
-import { readFileSync } from "node:fs";
+import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { parse } from "yaml";
 
-const execFile = promisify(execFileCb);
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const contract = join(root, "api/openapi.yaml");
 // Prism and httpyac are devDependencies; run the local binaries.
@@ -86,16 +85,26 @@ async function replay(baseUrl) {
     "--output",
     "short",
   ];
-  const { stdout } = await execFile(bin("httpyac"), args, {
-    cwd: root,
-    maxBuffer: 16 * 1024 * 1024,
-  }).catch((err) => {
-    // httpyac exits non-zero on failed requests but still prints the report.
-    if (typeof err.stdout === "string" && err.stdout.trim().startsWith("{"))
-      return { stdout: err.stdout };
-    throw err;
-  });
-  return JSON.parse(stdout.slice(stdout.indexOf("{")));
+  // httpyac exits without draining a piped stdout, so any report bigger than
+  // the OS pipe buffer (8 KB on macOS, 64 KB on Linux) arrives truncated and
+  // JSON.parse fails — locally but not in CI. A file descriptor is always
+  // written in full, so collect the report there.
+  const dir = mkdtempSync(join(tmpdir(), "mock-check-"));
+  const fd = openSync(join(dir, "report.json"), "w");
+  try {
+    await new Promise((resolve, reject) => {
+      const child = spawn(bin("httpyac"), args, { cwd: root, stdio: ["ignore", fd, "inherit"] });
+      child.on("error", reject);
+      // httpyac exits non-zero when a request fails but still writes the
+      // report; the status assertions below decide pass/fail.
+      child.on("exit", resolve);
+    });
+    const report = readFileSync(join(dir, "report.json"), "utf8");
+    return JSON.parse(report.slice(report.indexOf("{")));
+  } finally {
+    closeSync(fd);
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 const port = await freePort();
